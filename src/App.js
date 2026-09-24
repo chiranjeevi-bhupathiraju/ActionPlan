@@ -1,119 +1,104 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Task from "./components/Task";
 import AddTask from "./components/AddTask";
 
 const App = () => {
   const [actions, setActions] = useState([]);
-  const [inputValue, setInputValue] = useState("");
-  const [taskId, setTaskId] = useState(0);
-  const [errors, setErrors] = useState({});
+  const [taskId, setTaskId] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const handleAddClick = () => {
-    setShowModal(true);
-  };
+  // Current action being edited (or null for add mode)
+  const editingAction = actions.find((a) => a.id === taskId) || null;
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setErrors((prev) => ({ ...prev, action: "" }));
-    setInputValue(value);
-  };
-
-  const handleDelete = (id) => {
-    const filteredActions = actions.filter((act) => act.id !== id);
-    setActions(filteredActions);
-  };
-
-  const handleEdit = (id) => {
-    const action = actions.find((act) => act.id === id);
-    setShowModal(true);
-
-    if (action) {
-      setInputValue(action.desc);
-      setTaskId(action.id);
-    }
-  };
-
-  const handleCloseClick = () => {
-    setShowModal(false);
-    setInputValue("");
-    setErrors({});
+  const handleAddClick = useCallback(() => {
     setTaskId(null);
-  };
+    setShowModal(true);
+  }, []);
 
-  const handleSaveClick = () => {
-    if (inputValue.trim() === "") {
-      setErrors((prev) => ({ ...prev, action: "required" }));
-      return;
-    }
-    if (taskId) {
-      setActions((prev) =>
-        prev.map((action) =>
-          action.id === taskId
-            ? {
-                ...action,
-                desc: inputValue.trim(),
-              }
-            : action,
-        ),
-      );
-    } else {
-      const action = {
-        desc: inputValue,
-        id: crypto.randomUUID(),
-      };
-      setActions((prev) => [...prev, action]);
-    }
+  const handleDelete = useCallback((id) => {
+    setActions((prev) => prev.filter((act) => act.id !== id));
+  }, []);
 
-    setInputValue("");
-    handleCloseClick();
-  };
+  const handleEdit = useCallback((id) => {
+    setTaskId(id);
+    setShowModal(true);
+  }, []);
+
+  const handleCloseClick = useCallback(() => {
+    setShowModal(false);
+    setTaskId(null);
+  }, []);
+
+  const handleSaveClick = useCallback(
+    (desc) => {
+      if (taskId) {
+        setActions((prev) =>
+          prev.map((action) =>
+            action.id === taskId ? { ...action, desc } : action,
+          ),
+        );
+      } else {
+        setActions((prev) => [
+          ...prev,
+          { desc, id: crypto.randomUUID() },
+        ]);
+      }
+      setShowModal(false);
+      setTaskId(null);
+    },
+    [taskId],
+  );
 
   return (
-    <div className="flex  justify-center items-center min-h-screen">
-      <div className="w-[800px] min-h-[600px] border border-black rounded-lg p-5 m-2">
-        <div className="flex  justify-between items-end mb-4 border p-2">
-          {" "}
-          <h1 className="text-5xl text-[#e7a45e] font-semibold ">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 font-sans antialiased">
+      <div className="w-full max-w-3xl min-h-[600px] bg-white/90 backdrop-blur-sm border border-slate-200 rounded-2xl shadow-xl p-6">
+        <div className="flex justify-between items-end mb-5 pb-3 border-b border-slate-200">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-amber-600 drop-shadow-sm">
             Action Plan
           </h1>
-          <p ><span className="font-bold text-xl">{actions.length} </span>Actions</p>
+          <p className="text-slate-600 text-lg">
+            <span className="font-bold text-2xl text-slate-800">
+              {actions.length}{" "}
+            </span>
+            Actions
+          </p>
         </div>
 
-        <div className="flex justify-end mb-2">
-          {" "}
+        <div className="flex justify-end mb-5">
           <button
-            className=" text-black text-sm border border-black h-10 font-semibold px-2 py-0.5 rounded-sm"
+            className="group flex items-center gap-2 bg-white text-slate-700 text-sm font-semibold border border-slate-300 px-4 py-2 rounded-xl shadow-sm hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1"
             onClick={handleAddClick}
           >
+            <span className="text-lg leading-none font-bold group-hover:scale-110 transition-transform">
+              +
+            </span>
             Add Action
           </button>
         </div>
 
-          <div className="border min-h-[300px] p-2 space-y-2">
-            {actions.length > 0 ? (
-              actions.map((act) => (
-                <Task
-                  action={act}
-                  key={act.id}
-                  handleDelete={handleDelete}
-                  handleEdit={handleEdit}
-                />
-              ))
-            ) : (
-              <p className="flex justify-center items-center h-full">
-                please add actions
-              </p>
-            )}
+        <div className="border border-slate-200 bg-slate-50/50 rounded-xl p-4 min-h-[300px] space-y-2.5">
+          {actions.length > 0 ? (
+            actions.map((act) => (
+              <Task
+                action={act}
+                key={act.id}
+                handleDelete={handleDelete}
+                handleEdit={handleEdit}
+              />
+            ))
+          ) : (
+            <p className="flex justify-center items-center h-full text-slate-400 text-sm italic">
+              Please add actions
+            </p>
+          )}
         </div>
       </div>
+
       {showModal && (
         <AddTask
-          handleInputChange={handleInputChange}
+          initialValue={editingAction?.desc ?? ""}
           handleCloseClick={handleCloseClick}
           handleSaveClick={handleSaveClick}
-          inputValue={inputValue}
-          errors={errors}
         />
       )}
     </div>
