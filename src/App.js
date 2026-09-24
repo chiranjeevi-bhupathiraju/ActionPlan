@@ -99,7 +99,7 @@ const App = () => {
           </div>
 
           <div
-            className={`rounded-xl p-4 min-h-[300px] space-y-2.5 ${darkTheme ? "border border-slate-700 bg-slate-900/60" : "border border-slate-200 bg-slate-50/50"}`}
+            className={`rounded-xl p-4 min-h-[300px] max-h-[600px] overflow-y-auto space-y-2.5 ${darkTheme ? "border border-slate-700 bg-slate-900/60" : "border border-slate-200 bg-slate-50/50"}`}
           >
             {actions.length > 0 ? (
               actions.map((act) => (
