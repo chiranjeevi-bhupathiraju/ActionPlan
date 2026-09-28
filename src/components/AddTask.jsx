@@ -31,9 +31,13 @@ const AddTask = memo(
 
     return (
       <div className="fixed inset-0 w-full bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className={`rounded-2xl shadow-2xl w-full max-w-2xl p-6 transition-all duration-200 ${darkTheme ? "bg-slate-800 border border-slate-700" : "bg-white border border-white/20"}`}>
-          <h2 className={`text-xl font-semibold mb-4 ${darkTheme ? "text-slate-100" : "text-slate-800"}`}>
-            Add / Edit Action
+        <div
+          className={`rounded-2xl shadow-2xl w-full max-w-2xl p-6 transition-all duration-200 ${darkTheme ? "bg-slate-800 border border-slate-700" : "bg-white border border-white/20"}`}
+        >
+          <h2
+            className={`text-xl font-semibold mb-4 ${darkTheme ? "text-slate-100" : "text-slate-800"}`}
+          >
+            {initialValue ? "Edit" : "Add"} Action
           </h2>
 
           <input

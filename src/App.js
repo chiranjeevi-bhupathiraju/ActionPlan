@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useDeferredValue } from "react";
 import Task from "./components/Task";
 import AddTask from "./components/AddTask";
 
@@ -7,6 +7,7 @@ const App = () => {
   const [taskId, setTaskId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [darkTheme, setDarkTheme] = useState(false);
+  const deferredActions = useDeferredValue(actions);
 
   const editingAction = actions.find((action) => action.id === taskId) || null;
 
@@ -143,8 +144,8 @@ const App = () => {
           <div
             className={`rounded-xl p-4 min-h-[300px] max-h-[600px] overflow-y-auto space-y-2.5 ${darkTheme ? "border border-slate-700 bg-slate-900/60" : "border border-slate-200 bg-slate-50/50"}`}
           >
-            {actions.length > 0 ? (
-              actions.map((act) => (
+            {deferredActions.length > 0 ? (
+              deferredActions.map((act) => (
                 <Task
                   action={act}
                   key={act.id}
