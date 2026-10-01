@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
 import Task from "./components/Task";
 import AddTask from "./components/AddTask";
+import useLocalStorage from "./useHooks/useLocalStorage";
 
 const App = () => {
-  const [actions, setActions] = useState([]);
+  const [actions, , dispatch] = useLocalStorage();
   const [taskId, setTaskId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [darkTheme, setDarkTheme] = useState(false);
@@ -19,7 +20,7 @@ const App = () => {
   };
 
   const handleDelete = useCallback((id) => {
-    setActions((prev) => prev.filter((action) => action.id !== id));
+    dispatch({ type: "DELETE", id: id });
   }, []);
 
   const handleEdit = useCallback((id) => {
@@ -35,13 +36,9 @@ const App = () => {
   const handleSaveClick = useCallback(
     (desc) => {
       if (taskId) {
-        setActions((prev) =>
-          prev.map((action) =>
-            action.id === taskId ? { ...action, desc } : action,
-          ),
-        );
+        dispatch({ type: "EDIT", id: taskId, desc: desc });
       } else {
-        setActions((prev) => [...prev, { desc, id: crypto.randomUUID() }]);
+        dispatch({ type: "ADD", desc: desc, id: crypto.randomUUID() });
       }
 
       setShowModal(false);
